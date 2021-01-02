@@ -93,7 +93,7 @@ public class main { // TODO- Add a friendly UI. Save currentscore to a txt file,
         noButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mainText.setText("Set the filepath before continuing, and make sure that lock is scrambled.");
+                mainText.setText("Set the filepath before continuing.");
             }
         }); // Def no button.
         
