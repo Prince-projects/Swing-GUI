@@ -1,0 +1,189 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Scanner;
+
+
+public class main { // TODO- Add a friendly UI. Save currentscore to a txt file, as well as task list.
+
+    public static void main(String[] args) throws IOException, InterruptedException, AWTException {
+        DeadbyDaylight dbd = new DeadbyDaylight();
+        TasksHandler taskHandle = new TasksHandler();
+        Scanner userInput = new Scanner(System.in);
+        MineCraft mc = new MineCraft();
+        OverWatch ow = new OverWatch(); // ** NOT APPLICABLE FOR THIS INSTANCE. Cross-class interaction for local machine that won't work on your machine.**
+        boolean assignedTasks = false;
+        final boolean[] startLogic = {false};
+        boolean lockPic = true; // Exploration of interaction with local files.
+        boolean taskFile = true; // Txt file for a challenge list to complete while playing game.
+        File taskFileLoc = new File("./tasks.txt");
+        File lockPicLoc = new File("./Pic.jpg"); // Defining files to use later on in jar's root.
+        if (taskFileLoc.exists()) {
+            lockPic = true;
+        }
+        if (lockPicLoc.exists()) {
+            taskFile = true;
+        }
+
+        // Swing code. I do not like swing. It is very nitpicky. Some buttons look out of place because they need to be def first so they work properly.
+        // Prepare your eyes and cut me as much slack as you can.
+        JFrame frame = new JFrame("GUI");
+        frame.setLayout(null); // ** Big line. Responsible for 90% of my headaches with swing and currently in the process of learning how to make this better.
+        final JLabel mainText = new JLabel();
+        mainText.setBounds(50, 50, 800, 20); //  Setting new label in main screen to display basic info.
+
+        JButton dbdButton = new JButton("Dead by daylight");
+        dbdButton.setBounds(50, 200, 95, 30);
+        dbdButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    dbd.screenShot();
+                } catch (AWTException | IOException | InterruptedException awtException) {
+                    awtException.printStackTrace();
+                }
+            }
+        }); // Def dbd class button.
+
+
+        JButton owButton = new JButton("Overwatch");
+        dbdButton.setBounds(50, 240, 95, 30);
+        dbdButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    OverWatch.screenShot();
+                } catch (AWTException | InterruptedException awtException) {
+                    awtException.printStackTrace();
+                }
+            }
+        }); // Def ow class button.
+
+
+
+        JButton mcButton = new JButton("Minecraft");
+        mcButton.setBounds(50, 300, 95, 30);
+        mcButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MineCraft.screenShot();
+            }
+        }); // Def mc class button.
+
+        JButton yesButton = new JButton("Yes");
+        yesButton.setBounds(50, 100, 95, 30);
+        yesButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                startLogic[0] = true;
+            }
+        }); // Def yes button.
+
+
+
+        JButton noButton = new JButton("No");
+        noButton.setBounds(150, 100, 95, 30);
+        noButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainText.setText("Set the filepath before continuing, and make sure that lock is scrambled.");
+            }
+        }); // Def no button.
+        
+        
+        
+        JButton nogameButton = new JButton("No Game");
+        noButton.setBounds(150, 500, 95, 30);
+        noButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    taskHandle.taskAllocation();
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+            }
+        }); // Def the "Nogame" button to take you to the challenge list as opposed to a game intergration one.
+
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosed(e);
+                try {
+                    System.exit(0);
+                    Files.setAttribute(Paths.get(String.valueOf(lockPicLoc)), "dos:hidden", false);
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
+            }
+        }); // Stop program once GUI is closed.
+        
+        
+        frame.add(mainText);
+        frame.add(yesButton);
+        frame.add(noButton);
+        frame.add(mcButton);
+        frame.add(owButton);
+        frame.add(dbdButton);
+        frame.add(nogameButton);
+        frame.setVisible(true);
+        frame.setSize(1920, 1080);
+        dbdButton.setVisible(false);
+        mcButton.setVisible(false);
+        owButton.setVisible(false);
+        nogameButton.setVisible(false);
+        // Adding and editing swing components.
+        
+        
+        mainText.setText("Welcome. Are your files all in order?");
+            while (!startLogic[0]) {
+                Thread.sleep(2000);
+            }
+            if (startLogic[0]) {
+                while (!taskFile || !lockPic) {
+                    noButton.setVisible(false);
+                    yesButton.setVisible(false); // Unhide relevant buttons and start setup.
+                    if (taskFile) {
+                        mainText.setText("Task file found.");
+                        Thread.sleep(2000);
+                    }
+                    if (!taskFile) {
+                        mainText.setText("Task file missing! Please create a file called 'Tasks.txt' and place your list of tasks in there separated by a comma.");
+                        Thread.sleep(2000);
+                    }
+                    if (lockPic) {
+                        mainText.setText("pic missing. Are you sure it exists and set it to 'lockPic'?");
+                        Thread.sleep(2000);
+                    }
+                    if (!lockPic) {
+                        mainText.setText("lockPic found!");
+                        Thread.sleep(2000);
+                    }
+                }
+                if (lockPic && taskFile) {
+                    mainText.setText("Setup complete!.");
+                    noButton.setVisible(false);
+                    yesButton.setVisible(false);
+                    dbdButton.setVisible(true);
+                    mcButton.setVisible(true);
+                    owButton.setVisible(true);
+                    nogameButton.setVisible(true);
+                }
+            Files.setAttribute(Paths.get("/Screenshot_1.png"), "dos:hidden", true); //  Hide the file. Just for fun.
+            }
+        }
+
+    public static void picHandler() throws IOException {
+        Files.setAttribute(Paths.get("/Screenshot_1.png"), "dos:hidden", false); // Unhide the file.
+    }
+
+}
